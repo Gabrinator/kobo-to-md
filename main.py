@@ -1,6 +1,6 @@
 import sqlite3
-from tabulate import tabulate
-from unidecode import unidecode
+from tabulate import tabulate # For printing pretty tables
+from unidecode import unidecode # For replacing curly apostrophes and other unwanted characters
 
 # Get the list of Books for which there are highlights
 def get_books(con):
@@ -10,7 +10,16 @@ def get_books(con):
     print(tabulate(books, headers=['ID','VolumeID', 'BookTitle', 'No. of Highlights'], showindex=True, tablefmt='grid', maxcolwidths=[35,35, None]))
     return books
 
-def to_markdown(con, books, bookID):
+def get_highlights(con, books, bookID):
+    # get the highlights
+    cur = con.cursor()
+    res = cur.execute("""SELECT c.Title as Chapter, Text , b.ChapterProgress
+        FROM Bookmark b LEFT JOIN content c ON b.ContentId=c.ContentId 
+        WHERE volumeId='""" + books[bookID][0] + """' ORDER BY Chapter ASC, b.ChapterProgress ASC;""")
+    highlights=res.fetchall()
+    return highlights
+
+def to_markdown(highlights, books, bookID):
 
     title = books[bookID][1]
     if title == None:
@@ -19,13 +28,6 @@ def to_markdown(con, books, bookID):
     # Create file
     f = open(title + '.md', 'x')
     f.write('# ' + title + '\n') # Write the Title of the book
-
-    # get the highlights
-    cur = con.cursor()
-    res = cur.execute("""SELECT c.Title as Chapter, Text , b.ChapterProgress
-FROM Bookmark b LEFT JOIN content c ON b.ContentId=c.ContentId 
-WHERE volumeId='""" + books[bookID][0] + """' ORDER BY Chapter ASC, b.ChapterProgress ASC;""")
-    highlights=res.fetchall()
     
     # write the different quotes
     currentChapter = highlights[0][0]
@@ -39,11 +41,10 @@ WHERE volumeId='""" + books[bookID][0] + """' ORDER BY Chapter ASC, b.ChapterPro
     f.close()
 
 
-con = sqlite3.connect('KoboReader.sqlite') # default filename
-
 print("Welcome to Kobo to Markdown")
 print("The following books have highlights:")
 
+con = sqlite3.connect('KoboReader.sqlite') # default filename
 books = get_books(con)
 
 # Get the book number for which to extract
@@ -58,8 +59,8 @@ while True:
     else:
         break
 
-
-to_markdown(con, books, bookID)
+highlights = get_highlights(con, books, bookID)
+to_markdown(highlights, books, bookID)
 
 # Close the DB connnection
 con.close()
