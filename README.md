@@ -9,8 +9,7 @@
 
  ## WIP
  * Add error handling for :
-    * working with file 
-    * db connection
+    * working with file
     * Title input
  * Commandline arguments
     * config (+ config file for default db and export locations)

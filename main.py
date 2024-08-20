@@ -1,6 +1,7 @@
 import sqlite3
 from tabulate import tabulate # For printing pretty tables
 from unidecode import unidecode # For replacing curly apostrophes and other unwanted characters
+import os
 
 # Get the list of Books for which there are highlights
 def get_books(con):
@@ -42,29 +43,43 @@ def to_markdown(highlights, books, bookID):
 
 
 def main():
-    print("Welcome to Kobo to Markdown")
-    print("The following books have highlights:")
 
-    con = sqlite3.connect('KoboReader.sqlite') # default filename
-    books = get_books(con)
+    dbfile = 'KoboReader.sqlite'
+    # Check if the file exists
+    if os.path.isfile(dbfile):
 
-    # Get the book number for which to extract
-    while True:
         try:
-            bookID = int(input("Enter the ID of the book for which you would like to export highlights: "))
-        except ValueError:
-            print('Not a valid number')
-            continue
-        if bookID > len(books) -1 or bookID < 0:
-            print('The number does not correspond to an existing book. Please enter a valid ID number.')
-        else:
-            break
 
-    highlights = get_highlights(con, books, bookID)
-    to_markdown(highlights, books, bookID)
+            con = sqlite3.connect(dbfile) # default filename
+            books = get_books(con)
 
-    # Close the DB connnection
-    con.close()
+            print("Welcome to Kobo to Markdown")
+            print("The following books have highlights:")
+
+            # Get the book number for which to extract
+            while True:
+                try:
+                    bookID = int(input("Enter the ID of the book for which you would like to export highlights: "))
+                except ValueError:
+                    print('Not a valid number')
+                    continue
+                if bookID > len(books) -1 or bookID < 0:
+                    print('The number does not correspond to an existing book. Please enter a valid ID number.')
+                else:
+                    break
+
+            highlights = get_highlights(con, books, bookID)
+            to_markdown(highlights, books, bookID)
+
+        except sqlite3.Error as e:
+            print(f"Error accessing database: {e}")
+
+        finally:
+            # Close the DB connnection
+            if con:
+                con.close()
+    else: 
+        print('Database file not found. Please ensure you are in the same folder as KoboReader.sqlite.')
 
 
 if __name__ == "__main__":
