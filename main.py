@@ -45,7 +45,20 @@ print("Welcome to Kobo to Markdown")
 print("The following books have highlights:")
 
 books = get_books(con)
-bookID = int(input("Enter the ID of the book for which you would like to export highlights: "))
+
+# Get the book number for which to extract
+while True:
+    try:
+        bookID = int(input("Enter the ID of the book for which you would like to export highlights: "))
+    except ValueError:
+        print('Not a valid number')
+        continue
+    if bookID > len(books) -1 or bookID < 0:
+        print('The number does not correspond to an existing book. Please enter a valid ID number.')
+    else:
+        break
+
+
 to_markdown(con, books, bookID)
 
 # Close the DB connnection
