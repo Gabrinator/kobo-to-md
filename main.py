@@ -22,6 +22,7 @@ def get_book_id(books):
             print('The number does not correspond to an existing book. Please enter a valid ID number.')
         else:
             break
+    return bookID
 
 def get_highlights(con, books, bookID):
     # get the highlights
@@ -38,20 +39,27 @@ def to_markdown(highlights, books, bookID):
     if title == None:
         title= input("What should the title of the book be?")
 
-    # Create file
-    f = open(title + '.md', 'x')
-    f.write('# ' + title + '\n') # Write the Title of the book
-    
-    # write the different quotes
-    currentChapter = highlights[0][0]
-    f.write('## ' + currentChapter +'\n')
-    for row in highlights:
-        if row[0] != currentChapter:
-            currentChapter=row[0]
-            f.write('## ' + currentChapter + '\n')
+    try:
+        # Create file
+        with open(title + '.md', 'x') as f:
 
-        f.write("> " + unidecode(row[1]) + "\n\n")
-    f.close()
+            f.write('# ' + title + '\n') # Write the Title of the book
+            
+            # write Chapter Names
+            currentChapter = highlights[0][0]
+            f.write('## ' + currentChapter +'\n')
+            for row in highlights:
+                if row[0] != currentChapter:
+                    currentChapter=row[0]
+                    f.write('## ' + currentChapter + '\n')
+
+                f.write("> " + unidecode(row[1]) + "\n\n") # write the quote
+    except FileNotFoundError as e:
+        print(f"Error creating file: {e}")
+    except PermissionError as e:
+        print(f"Permission denied: {e}")
+    except Exception as e:
+        print(f"Error writing to file: {e}")
 
 
 def main():
