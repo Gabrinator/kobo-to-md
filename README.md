@@ -8,7 +8,10 @@
  4. This will create a markdown file named after the book title in the same directory.
 
  ## WIP
- * Add error handling, especially for working with file and db connection
+ * Add error handling for :
+    * working with file 
+    * db connection
+    * Title input
  * Commandline arguments
     * config (+ config file for default db and export locations)
     * list - to list available books

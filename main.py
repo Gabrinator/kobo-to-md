@@ -41,26 +41,31 @@ def to_markdown(highlights, books, bookID):
     f.close()
 
 
-print("Welcome to Kobo to Markdown")
-print("The following books have highlights:")
+def main():
+    print("Welcome to Kobo to Markdown")
+    print("The following books have highlights:")
 
-con = sqlite3.connect('KoboReader.sqlite') # default filename
-books = get_books(con)
+    con = sqlite3.connect('KoboReader.sqlite') # default filename
+    books = get_books(con)
 
-# Get the book number for which to extract
-while True:
-    try:
-        bookID = int(input("Enter the ID of the book for which you would like to export highlights: "))
-    except ValueError:
-        print('Not a valid number')
-        continue
-    if bookID > len(books) -1 or bookID < 0:
-        print('The number does not correspond to an existing book. Please enter a valid ID number.')
-    else:
-        break
+    # Get the book number for which to extract
+    while True:
+        try:
+            bookID = int(input("Enter the ID of the book for which you would like to export highlights: "))
+        except ValueError:
+            print('Not a valid number')
+            continue
+        if bookID > len(books) -1 or bookID < 0:
+            print('The number does not correspond to an existing book. Please enter a valid ID number.')
+        else:
+            break
 
-highlights = get_highlights(con, books, bookID)
-to_markdown(highlights, books, bookID)
+    highlights = get_highlights(con, books, bookID)
+    to_markdown(highlights, books, bookID)
 
-# Close the DB connnection
-con.close()
+    # Close the DB connnection
+    con.close()
+
+
+if __name__ == "__main__":
+    main()
