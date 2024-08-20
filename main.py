@@ -11,6 +11,18 @@ def get_books(con):
     print(tabulate(books, headers=['ID','VolumeID', 'BookTitle', 'No. of Highlights'], showindex=True, tablefmt='grid', maxcolwidths=[35,35, None]))
     return books
 
+def get_book_id(books):
+    while True:
+        try:
+            bookID = int(input("Enter the ID of the book for which you would like to export highlights: "))
+        except ValueError:
+            print('Not a valid number')
+            continue
+        if bookID > len(books) -1 or bookID < 0:
+            print('The number does not correspond to an existing book. Please enter a valid ID number.')
+        else:
+            break
+
 def get_highlights(con, books, bookID):
     # get the highlights
     cur = con.cursor()
@@ -57,16 +69,7 @@ def main():
             print("The following books have highlights:")
 
             # Get the book number for which to extract
-            while True:
-                try:
-                    bookID = int(input("Enter the ID of the book for which you would like to export highlights: "))
-                except ValueError:
-                    print('Not a valid number')
-                    continue
-                if bookID > len(books) -1 or bookID < 0:
-                    print('The number does not correspond to an existing book. Please enter a valid ID number.')
-                else:
-                    break
+            bookID = get_book_id(books)
 
             highlights = get_highlights(con, books, bookID)
             to_markdown(highlights, books, bookID)
